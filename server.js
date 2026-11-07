@@ -402,6 +402,51 @@ app.get("/login", (req, res) => {
   res.sendFile(path.join(__dirname, "login.html"));
 });
 
+
+// PRODUTOS PUBLICOS: SOMENTE PRODUTOS PUBLICADOS
+if (true) {
+  app.get("/api/public/products", (req, res) => {
+    try {
+      const rows = db.prepare(
+        "SELECT data FROM products ORDER BY rowid DESC"
+      ).all();
+
+      const products = rows
+        .map(row => {
+          try { return JSON.parse(row.data); }
+          catch { return null; }
+        })
+        .filter(product =>
+          product &&
+          product.status === "Publicado"
+        );
+
+      res.set("Cache-Control", "no-store");
+      res.json(products);
+    } catch (error) {
+      console.error("Erro ao carregar produtos públicos:", error);
+      res.status(500).json({ error: "Não foi possível carregar os achadinhos." });
+    }
+  });
+}
+
+// CATEGORIAS PUBLICAS
+if (true) {
+  app.get("/api/public/categories", (req, res) => {
+    try {
+      const rows = db.prepare(
+        "SELECT name FROM categories ORDER BY rowid ASC"
+      ).all();
+
+      res.set("Cache-Control", "no-store");
+      res.json(rows.map(row => row.name));
+    } catch (error) {
+      console.error("Erro ao carregar categorias públicas:", error);
+      res.status(500).json({ error: "Não foi possível carregar as categorias." });
+    }
+  });
+}
+
 // BLOQUEAR ACESSO AOS ARQUIVOS INTERNOS
 app.use("/data", (req, res) => {
   res.sendStatus(404);
