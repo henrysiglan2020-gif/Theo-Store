@@ -12,11 +12,15 @@
   <aside class="sidebar">
     <h2>THEO <span>STORE.</span></h2>
     <p>PAINEL ADMINISTRATIVO</p>
+
     <button class="nav active" data-page="dashboard">▦ Visão geral</button>
     <button class="nav" data-page="products">▣ Produtos</button>
     <button class="nav" data-page="categories">▤ Categorias</button>
     <button class="nav" data-page="new">＋ Novo achadinho</button>
-    <a href="index.html">← Voltar ao site</a>
+    <button class="nav" id="admins-nav" data-page="admins" hidden>♙ Administradores</button>
+
+    <button class="nav" id="logout-button">↪ Sair da Central</button>
+    <a href="/">← Voltar ao site</a>
   </aside>
 
   <main>
@@ -110,7 +114,10 @@
           <textarea id="product-description" rows="5" placeholder="Descrição do achadinho..."></textarea>
 
           <div class="ai-box">
-            <div><strong>✦ Inteligência artificial</strong><p>Prepare uma descrição atrativa para o produto.</p></div>
+            <div>
+              <strong>✦ Inteligência artificial</strong>
+              <p>Prepare uma descrição atrativa para o produto.</p>
+            </div>
             <button type="button" class="secondary" onclick="generateDescription()">Gerar descrição</button>
           </div>
 
@@ -122,6 +129,46 @@
         </form>
       </div>
     </section>
+
+    <section id="admins" class="page hidden">
+      <h2>Administradores</h2>
+      <p>Somente o dono pode gerenciar quem tem acesso à Central.</p>
+
+      <div class="panel">
+        <h3>Adicionar administrador</h3>
+
+        <form id="admin-form">
+          <label for="admin-username">Nome de usuário</label>
+          <input
+            id="admin-username"
+            placeholder="Ex.: joao_admin"
+            minlength="3"
+            maxlength="24"
+            required
+          >
+
+          <label for="admin-password">Senha do administrador</label>
+          <input
+            id="admin-password"
+            type="password"
+            placeholder="Mínimo de 10 caracteres"
+            minlength="10"
+            required
+          >
+
+          <button class="primary" type="submit">＋ Adicionar administrador</button>
+          <p id="admin-message" class="hint"></p>
+        </form>
+      </div>
+
+      <div class="panel">
+        <h3>Administradores cadastrados</h3>
+        <div id="admin-list">
+          <p>Carregando administradores...</p>
+        </div>
+      </div>
+    </section>
   </main>
+<script src="/em-desenvolvimento.js"></script>
 </body>
 </html>

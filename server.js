@@ -1,3 +1,4 @@
+
 require("dotenv").config();
 
 const express = require("express");
@@ -5,26 +6,60 @@ const session = require("express-session");
 const bcrypt = require("bcryptjs");
 const fs = require("fs");
 const path = require("path");
+const Database = require("better-sqlite3");
 
 const app = express();
 const PORT = process.env.PORT || 3000;
 
+app.set("trust proxy", 1);
+
 const DATA_DIR = path.join(__dirname, "data");
 const ADMINS_FILE = path.join(DATA_DIR, "admins.json");
+const DB_FILE = path.join(DATA_DIR, "theostore.db");
 
-if (!process.env.SESSION_SECRET ||
-    !process.env.OWNER_USERNAME ||
-    !process.env.OWNER_PASSWORD) {
-  throw new Error("Configure SESSION_SECRET, OWNER_USERNAME e OWNER_PASSWORD no .env");
+if (!process.env.SESSION_SECRET || !process.env.ADMIN_PASSWORD) {
+  throw new Error("Configure SESSION_SECRET e ADMIN_PASSWORD no .env");
 }
 
 fs.mkdirSync(DATA_DIR, { recursive: true });
 
+const db = new Database(DB_FILE);
+db.pragma("journal_mode = WAL");
+
+db.exec(`
+  CREATE TABLE IF NOT EXISTS products (
+    id TEXT PRIMARY KEY,
+    data TEXT NOT NULL,
+    updated_at TEXT DEFAULT CURRENT_TIMESTAMP
+  );
+
+  CREATE TABLE IF NOT EXISTS categories (
+    name TEXT PRIMARY KEY
+  );
+`);
+
+const defaultCategories = [
+  "Tecnologia",
+  "Games",
+  "Casa",
+  "Moda",
+  "Beleza",
+  "Outros"
+];
+
+const insertCategory = db.prepare(
+  "INSERT OR IGNORE INTO categories (name) VALUES (?)"
+);
+
+for (const category of defaultCategories) {
+  insertCategory.run(category);
+}
+
 function readAdmins() {
   if (!fs.existsSync(ADMINS_FILE)) {
     const owner = {
-      username: process.env.OWNER_USERNAME,
-      password: bcrypt.hashSync(process.env.OWNER_PASSWORD, 12),
+      username: "Dono",
+      password: bcrypt.hashSync(process.env.ADMIN_PASSWORD, 12),
       role: "owner"
     };
 
@@ -38,7 +73,7 @@ function saveAdmins(admins) {
   fs.writeFileSync(ADMINS_FILE, JSON.stringify(admins, null, 2));
 }
 
-app.use(express.json());
+app.use(express.json({ limit: "2mb" }));
 
 app.use(session({
   name: "theostore.sid",
@@ -62,39 +97,60 @@ function requireAdmin(req, res, next) {
 
 function requireOwner(req, res, next) {
   if (!req.session.admin || req.session.admin.role !== "owner") {
-    return res.status(403).json({ error: "Somente o dono pode fazer isso." });
+    return res.status(403).json({
+      error: "Somente o dono pode fazer isso."
+    });
   }
   next();
 }
 
-// Login
+// LOGIN DO DONO E DOS ADMINISTRADORES
 app.post("/api/login", async (req, res) => {
-  const { username, password } = req.body;
+  const username = String(req.body.username || "").trim();
+  const password = req.body.password;
 
-  if (typeof username !== "string" || typeof password !== "string") {
-    return res.status(400).json({ error: "Preencha os dados." });
+  if (typeof password !== "string" || !password) {
+    return res.status(400).json({ error: "Digite a senha." });
   }
 
-  const admins = readAdmins();
-  const admin = admins.find(a => a.username === username);
+  let account = null;
 
-  if (!admin || !(await bcrypt.compare(password, admin.password))) {
-    return res.status(401).json({ error: "Usuário ou senha incorretos." });
+  if (password === process.env.ADMIN_PASSWORD) {
+    account = {
+      username: "Dono",
+      role: "owner"
+    };
+  } else if (username) {
+    const admins = readAdmins();
+    const found = admins.find(
+      admin => admin.username === username && admin.role !== "owner"
+    );
+
+    if (found && await bcrypt.compare(password, found.password)) {
+      account = {
+        username: found.username,
+        role: "admin"
+      };
+    }
+  }
+
+  if (!account) {
+    return res.status(401).json({
+      error: "Usuário ou senha incorretos."
+    });
   }
 
   req.session.regenerate(err => {
-    if (err) return res.status(500).json({ error: "Erro ao entrar." });
+    if (err) {
+      return res.status(500).json({ error: "Erro ao entrar." });
+    }
 
-    req.session.admin = {
-      username: admin.username,
-      role: admin.role
-    };
-
-    res.json({ success: true });
+    req.session.admin = account;
+    res.json({ success: true, admin: account });
   });
 });
 
-// Verificar sessão
+// VERIFICAR SESSÃO
 app.get("/api/me", (req, res) => {
   res.json({
     authenticated: !!req.session.admin,
@@ -102,7 +158,7 @@ app.get("/api/me", (req, res) => {
   });
 });
 
-// Sair
+// SAIR
 app.post("/api/logout", requireAdmin, (req, res) => {
   req.session.destroy(() => {
     res.clearCookie("theostore.sid");
@@ -110,24 +166,26 @@ app.post("/api/logout", requireAdmin, (req, res) => {
   });
 });
 
-// Listar administradores
+// ADMINISTRADORES
 app.get("/api/admins", requireOwner, (req, res) => {
-  const admins = readAdmins().map(a => ({
-    username: a.username,
-    role: a.role
+  const admins = readAdmins().map(admin => ({
+    username: admin.username,
+    role: admin.role
   }));
 
   res.json(admins);
 });
 
-// Adicionar administrador
 app.post("/api/admins", requireOwner, async (req, res) => {
   const { username, password } = req.body;
 
-  if (typeof username !== "string" ||
-      typeof password !== "string" ||
-      !/^[a-zA-Z0-9_-]{3,24}$/.test(username) ||
-      password.length < 10) {
+  if (
+    typeof username !== "string" ||
+    typeof password !== "string" ||
+    !/^[a-zA-Z0-9_-]{3,24}$/.test(username) ||
+    username.toLowerCase() === "dono" ||
+    password.length < 10
+  ) {
     return res.status(400).json({
       error: "Use um usuário válido e senha com pelo menos 10 caracteres."
     });
@@ -135,7 +193,7 @@ app.post("/api/admins", requireOwner, async (req, res) => {
 
   const admins = readAdmins();
 
-  if (admins.some(a => a.username === username)) {
+  if (admins.some(a => a.username.toLowerCase() === username.toLowerCase())) {
     return res.status(409).json({ error: "Esse usuário já existe." });
   }
 
@@ -149,37 +207,430 @@ app.post("/api/admins", requireOwner, async (req, res) => {
   res.json({ success: true });
 });
 
-// Remover administrador
 app.delete("/api/admins/:username", requireOwner, (req, res) => {
   const admins = readAdmins();
   const target = admins.find(a => a.username === req.params.username);
 
   if (!target) {
-    return res.status(404).json({ error: "Administrador não encontrado." });
+    return res.status(404).json({
+      error: "Administrador não encontrado."
+    });
   }
 
   if (target.role === "owner") {
-    return res.status(403).json({ error: "O dono não pode ser removido." });
+    return res.status(403).json({
+      error: "O dono não pode ser removido."
+    });
   }
 
   saveAdmins(admins.filter(a => a.username !== target.username));
   res.json({ success: true });
 });
 
-// Proteger a central
+// PRODUTOS
+app.get("/api/products", requireAdmin, (req, res) => {
+  const rows = db.prepare(
+    "SELECT data FROM products ORDER BY rowid DESC"
+  ).all();
+
+  res.json(rows.map(row => JSON.parse(row.data)));
+});
+
+app.post("/api/products", requireAdmin, (req, res) => {
+  const product = req.body;
+
+  if (!product || !product.id || !product.name || !product.category) {
+    return res.status(400).json({
+      error: "Preencha os dados obrigatórios do produto."
+    });
+  }
+
+  db.prepare(`
+    INSERT INTO products (id, data, updated_at)
+    VALUES (?, ?, CURRENT_TIMESTAMP)
+    ON CONFLICT(id) DO UPDATE SET
+      data = excluded.data,
+      updated_at = CURRENT_TIMESTAMP
+  `).run(String(product.id), JSON.stringify(product));
+
+  res.json({ success: true });
+});
+
+app.put("/api/products/:id", requireAdmin, (req, res) => {
+  const product = req.body;
+
+  if (
+    !product ||
+    String(product.id) !== req.params.id ||
+    !product.name ||
+    !product.category
+  ) {
+    return res.status(400).json({
+      error: "Dados inválidos para atualizar o produto."
+    });
+  }
+
+  const result = db.prepare(`
+    UPDATE products
+    SET data = ?, updated_at = CURRENT_TIMESTAMP
+    WHERE id = ?
+  `).run(JSON.stringify(product), req.params.id);
+
+  if (!result.changes) {
+    return res.status(404).json({ error: "Produto não encontrado." });
+  }
+
+  res.json({ success: true });
+});
+
+app.patch("/api/products/:id/status", requireAdmin, (req, res) => {
+  const row = db.prepare(
+    "SELECT data FROM products WHERE id = ?"
+  ).get(req.params.id);
+
+  if (!row) {
+    return res.status(404).json({ error: "Produto não encontrado." });
+  }
+
+  const product = JSON.parse(row.data);
+  product.status = product.status === "Publicado" ? "Rascunho" : "Publicado";
+
+  db.prepare(`
+    UPDATE products
+    SET data = ?, updated_at = CURRENT_TIMESTAMP
+    WHERE id = ?
+  `).run(JSON.stringify(product), req.params.id);
+
+  res.json({ success: true });
+});
+
+app.delete("/api/products/:id", requireAdmin, (req, res) => {
+  db.prepare("DELETE FROM products WHERE id = ?").run(req.params.id);
+  res.json({ success: true });
+});
+
+// CATEGORIAS
+app.get("/api/categories", requireAdmin, (req, res) => {
+  const rows = db.prepare(
+    "SELECT name FROM categories ORDER BY rowid ASC"
+  ).all();
+
+  res.json(rows.map(row => row.name));
+});
+
+app.post("/api/categories", requireAdmin, (req, res) => {
+  const name = String(req.body.name || "").trim();
+
+  if (!name || name.length > 40) {
+    return res.status(400).json({
+      error: "Digite um nome de categoria válido."
+    });
+  }
+
+  try {
+    db.prepare("INSERT INTO categories (name) VALUES (?)").run(name);
+    res.json({ success: true });
+  } catch {
+    res.status(409).json({ error: "Essa categoria já existe." });
+  }
+});
+
+app.delete("/api/categories/:name", requireAdmin, (req, res) => {
+  const name = decodeURIComponent(req.params.name);
+
+  const product = db.prepare(
+    "SELECT id FROM products WHERE json_extract(data, '$.category') = ? LIMIT 1"
+  ).get(name);
+
+  if (product) {
+    return res.status(400).json({
+      error: "Essa categoria possui produtos. Mude a categoria desses produtos antes de excluí-la."
+    });
+  }
+
+  db.prepare("DELETE FROM categories WHERE name = ?").run(name);
+  res.json({ success: true });
+});
+
+// MIGRAÇÃO DOS DADOS ANTIGOS DO NAVEGADOR
+app.post("/api/migrate-local", requireAdmin, (req, res) => {
+  const products = Array.isArray(req.body.products)
+    ? req.body.products
+    : [];
+
+  const categories = Array.isArray(req.body.categories)
+    ? req.body.categories
+    : [];
+
+  const migrate = db.transaction(() => {
+    const productCount = db.prepare(
+      "SELECT COUNT(*) AS total FROM products"
+    ).get().total;
+
+    if (productCount === 0) {
+      const insertProduct = db.prepare(`
+        INSERT OR IGNORE INTO products (id, data)
+        VALUES (?, ?)
+      `);
+
+      for (const product of products) {
+        if (product && product.id && product.name) {
+          insertProduct.run(String(product.id), JSON.stringify(product));
+        }
+      }
+    }
+
+    for (const category of categories) {
+      if (typeof category === "string" && category.trim()) {
+        insertCategory.run(category.trim());
+      }
+    }
+  });
+
+  migrate();
+  res.json({ success: true });
+});
+
+// PROTEGER A CENTRAL
 app.get(["/central", "/central.html"], requireAdmin, (req, res) => {
   res.sendFile(path.join(__dirname, "central.html"));
 });
 
-// Página de login
+// LOGIN
 app.get("/login", (req, res) => {
   if (req.session.admin) return res.redirect("/central");
   res.sendFile(path.join(__dirname, "login.html"));
 });
 
-// Arquivos públicos do site
-app.use(express.static(__dirname, { index: "index.html" }));
+// BLOQUEAR ACESSO AOS ARQUIVOS INTERNOS
+app.use("/data", (req, res) => {
+  res.sendStatus(404);
+});
+
+// ARQUIVOS PÚBLICOS DO SITE
+app.use(express.static(__dirname, {
+  index: "index.html",
+  dotfiles: "deny"
+}));
 
 app.listen(PORT, () => {
   console.log(`THEO STORE funcionando na porta ${PORT}`);
+  console.log(`Banco de dados: ${DB_FILE}`);
+});
+
+// TABELAS DO SISTEMA MULTILOJAS
+db.exec(`
+  CREATE TABLE IF NOT EXISTS customers (
+    id TEXT PRIMARY KEY,
+    name TEXT NOT NULL,
+    email TEXT NOT NULL UNIQUE,
+    password_hash TEXT NOT NULL,
+    created_at TEXT DEFAULT CURRENT_TIMESTAMP
+  );
+
+  CREATE TABLE IF NOT EXISTS stores (
+    id TEXT PRIMARY KEY,
+    owner_id TEXT NOT NULL UNIQUE,
+    name TEXT NOT NULL,
+    slug TEXT NOT NULL UNIQUE,
+    description TEXT DEFAULT '',
+    logo TEXT DEFAULT '',
+    status TEXT NOT NULL DEFAULT 'pending_payment',
+    created_at TEXT DEFAULT CURRENT_TIMESTAMP,
+    FOREIGN KEY (owner_id) REFERENCES customers(id)
+  );
+
+  CREATE TABLE IF NOT EXISTS store_products (
+    id TEXT PRIMARY KEY,
+    store_id TEXT NOT NULL,
+    data TEXT NOT NULL,
+    updated_at TEXT DEFAULT CURRENT_TIMESTAMP,
+    FOREIGN KEY (store_id) REFERENCES stores(id)
+  );
+
+  CREATE TABLE IF NOT EXISTS store_payments (
+    id TEXT PRIMARY KEY,
+    customer_id TEXT NOT NULL,
+    store_id TEXT NOT NULL,
+    preference_id TEXT,
+    payment_id TEXT UNIQUE,
+    amount INTEGER NOT NULL DEFAULT 500,
+    status TEXT NOT NULL DEFAULT 'pending',
+    created_at TEXT DEFAULT CURRENT_TIMESTAMP,
+    FOREIGN KEY (customer_id) REFERENCES customers(id),
+    FOREIGN KEY (store_id) REFERENCES stores(id)
+  );
+
+  CREATE INDEX IF NOT EXISTS idx_store_products_store
+  ON store_products(store_id);
+`);
+
+// ======================================
+// CONTAS DOS CLIENTES
+// ======================================
+
+function requireCustomer(req, res, next) {
+  if (!req.session.customer) {
+    return res.status(401).json({ error: "Entre na sua conta primeiro." });
+  }
+  next();
+}
+
+// CADASTRO
+app.post("/api/register", async (req, res) => {
+  try {
+    const name = String(req.body.name || "").trim();
+    const email = String(req.body.email || "").trim().toLowerCase();
+    const password = req.body.password;
+
+    if (name.length < 2 || name.length > 50) {
+      return res.status(400).json({ error: "O nome deve ter entre 2 e 50 caracteres." });
+    }
+
+    if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email) || email.length > 150) {
+      return res.status(400).json({ error: "Digite um e-mail válido." });
+    }
+
+    if (typeof password !== "string" || password.length < 8 || password.length > 72) {
+      return res.status(400).json({ error: "A senha deve ter entre 8 e 72 caracteres." });
+    }
+
+    const id = require("crypto").randomUUID();
+    const passwordHash = await bcrypt.hash(password, 12);
+
+    db.prepare(`
+      INSERT INTO customers (id, name, email, password_hash)
+      VALUES (?, ?, ?, ?)
+    `).run(id, name, email, passwordHash);
+
+    req.session.regenerate(err => {
+      if (err) return res.status(500).json({ error: "Erro ao criar sessão." });
+
+      req.session.customer = { id, name, email };
+      res.json({ success: true, customer: req.session.customer });
+    });
+  } catch (error) {
+    if (error.code === "SQLITE_CONSTRAINT_UNIQUE") {
+      return res.status(409).json({ error: "Este e-mail já possui uma conta." });
+    }
+
+    console.error("Erro no cadastro:", error);
+    res.status(500).json({ error: "Não foi possível criar sua conta." });
+  }
+});
+
+// LOGIN DO CLIENTE
+app.post("/api/customer/login", async (req, res) => {
+  try {
+    const email = String(req.body.email || "").trim().toLowerCase();
+    const password = req.body.password;
+
+    if (!email || typeof password !== "string") {
+      return res.status(400).json({ error: "Preencha e-mail e senha." });
+    }
+
+    const customer = db.prepare(`
+      SELECT id, name, email, password_hash
+      FROM customers
+      WHERE email = ?
+    `).get(email);
+
+    if (!customer || !(await bcrypt.compare(password, customer.password_hash))) {
+      return res.status(401).json({ error: "E-mail ou senha incorretos." });
+    }
+
+    req.session.regenerate(err => {
+      if (err) return res.status(500).json({ error: "Erro ao entrar." });
+
+      req.session.customer = {
+        id: customer.id,
+        name: customer.name,
+        email: customer.email
+      };
+
+      res.json({ success: true, customer: req.session.customer });
+    });
+  } catch (error) {
+    console.error("Erro no login do cliente:", error);
+    res.status(500).json({ error: "Não foi possível entrar." });
+  }
+});
+
+// CONSULTAR CONTA E LOJA
+app.get("/api/customer/me", (req, res) => {
+  if (!req.session.customer) {
+    return res.json({ authenticated: false, customer: null, store: null });
+  }
+
+  const store = db.prepare(`
+    SELECT id, name, slug, status
+    FROM stores
+    WHERE owner_id = ?
+  `).get(req.session.customer.id) || null;
+
+  res.json({
+    authenticated: true,
+    customer: req.session.customer,
+    store
+  });
+});
+
+// SAIR DA CONTA DO CLIENTE
+app.post("/api/customer/logout", requireCustomer, (req, res) => {
+  req.session.destroy(err => {
+    if (err) return res.status(500).json({ error: "Não foi possível sair." });
+
+    res.clearCookie("theostore.sid");
+    res.json({ success: true });
+  });
+});
+
+// ROTAS PUBLICAS MULTILOJAS
+app.get("/api/stores/public", (req, res) => {
+  try {
+    const stores = db.prepare(`
+      SELECT name, slug, description, logo
+      FROM stores
+      WHERE status = 'active'
+      ORDER BY created_at DESC
+    `).all();
+
+    res.json(stores);
+  } catch (error) {
+    console.error("Erro ao listar lojas:", error);
+    res.status(500).json({ error: "Não foi possível carregar as lojas." });
+  }
+});
+
+app.get("/api/stores/public/:slug", (req, res) => {
+  try {
+    const store = db.prepare(`
+      SELECT id, name, slug, description, logo
+      FROM stores
+      WHERE slug = ? AND status = 'active'
+    `).get(req.params.slug);
+
+    if (!store) {
+      return res.status(404).json({ error: "Loja não encontrada ou ainda não publicada." });
+    }
+
+    const rows = db.prepare(`
+      SELECT data FROM store_products
+      WHERE store_id = ?
+      ORDER BY updated_at DESC
+    `).all(store.id);
+
+    const products = rows
+      .map(row => JSON.parse(row.data))
+      .filter(product => product.status === "Publicado");
+
+    res.json({ store, products });
+  } catch (error) {
+    console.error("Erro ao abrir loja:", error);
+    res.status(500).json({ error: "Não foi possível abrir esta loja." });
+  }
+});
+
+app.get("/loja/:slug", (req, res) => {
+  res.sendFile(path.join(__dirname, "loja.html"));
 });

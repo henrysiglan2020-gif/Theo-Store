@@ -7,8 +7,13 @@
   },
   "dependencies": {
     "bcryptjs": "^2.4.3",
+    "better-sqlite3": "^13.0.3",
     "dotenv": "^18.0.9",
     "express": "^4.22.3",
-    "express-session": "^1.19.0"
+    "express-session": "^1.19.0",
+    "mercadopago": "^3.6.1"
+  },
+  "allowScripts": {
+    "better-sqlite3@13.0.3": true
   }
 }

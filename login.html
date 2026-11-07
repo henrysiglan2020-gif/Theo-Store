@@ -1,3 +1,4 @@
+
 <!DOCTYPE html>
 <html lang="pt-BR">
 <head>
@@ -13,11 +14,14 @@
     <p>Central administrativa</p>
 
     <form id="login-form">
-      <label>Usuário</label>
-      <input id="username" required autocomplete="username">
-
-      <label>Senha</label>
-      <input id="password" type="password" required autocomplete="current-password">
+      <label for="password">Senha de administrador</label>
+      <input
+        id="password"
+        type="password"
+        required
+        autocomplete="current-password"
+        placeholder="Digite sua senha"
+      >
 
       <button type="submit">ENTRAR NA CENTRAL</button>
       <p id="message"></p>
@@ -25,5 +29,6 @@
 
     <a href="/">Voltar para a loja</a>
   </main>
+<script src="/em-desenvolvimento.js"></script>
 </body>
 </html>

@@ -1,0 +1,116 @@
+* {
+  box-sizing: border-box;
+  margin: 0;
+  padding: 0;
+}
+
+body {
+  min-height: 100vh;
+  background: #090909;
+  color: #fff;
+  font-family: Arial, sans-serif;
+  padding: 30px 18px;
+}
+
+.logo {
+  display: block;
+  width: fit-content;
+  margin: 0 auto 35px;
+  color: white;
+  text-decoration: none;
+  font-size: 25px;
+  font-weight: 900;
+}
+
+.logo span {
+  color: #ffdf00;
+}
+
+.container {
+  width: min(100%, 430px);
+  margin: auto;
+  padding: 30px;
+  background: #141414;
+  border: 1px solid #292929;
+  border-radius: 15px;
+}
+
+.tabs {
+  display: flex;
+  gap: 10px;
+  margin-bottom: 30px;
+}
+
+.tabs button {
+  flex: 1;
+  padding: 13px;
+  border: 1px solid #333;
+  border-radius: 8px;
+  background: #202020;
+  color: white;
+  cursor: pointer;
+}
+
+.tabs button.active {
+  background: #ffdf00;
+  color: #090909;
+  font-weight: bold;
+}
+
+h1 {
+  font-size: 27px;
+  margin-bottom: 8px;
+}
+
+form p {
+  color: #999;
+  margin-bottom: 25px;
+}
+
+label {
+  display: block;
+  margin: 17px 0 8px;
+  font-size: 14px;
+}
+
+input {
+  width: 100%;
+  padding: 14px;
+  border: 1px solid #333;
+  border-radius: 8px;
+  background: #090909;
+  color: white;
+  outline: none;
+}
+
+input:focus {
+  border-color: #ffdf00;
+}
+
+.submit {
+  width: 100%;
+  padding: 15px;
+  margin-top: 25px;
+  border: 0;
+  border-radius: 8px;
+  background: #ffdf00;
+  color: #090909;
+  font-weight: 900;
+  cursor: pointer;
+}
+
+#message {
+  margin-top: 18px;
+  color: #ffdf00;
+  font-size: 14px;
+  overflow-wrap: anywhere;
+}
+
+.back {
+  display: block;
+  margin-top: 25px;
+  color: #aaa;
+  text-align: center;
+  text-decoration: none;
+  font-size: 14px;
+}

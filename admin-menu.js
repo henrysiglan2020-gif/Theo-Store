@@ -1,4 +1,4 @@
-cat > admin-menu.js <<'EOF'
+
 document.addEventListener("DOMContentLoaded", () => {
   const button = document.getElementById("admin-menu-button");
   const sidebar = document.getElementById("admin-sidebar");
@@ -10,7 +10,17 @@ document.addEventListener("DOMContentLoaded", () => {
     return;
   }
 
+  // Mostrar botão do menu
   button.hidden = false;
+
+  // Corrigir o destino da Central Administrativa
+  sidebar.querySelectorAll("a").forEach(link => {
+    const href = link.getAttribute("href");
+
+    if (href === "/central" || href === "/central.html") {
+      link.setAttribute("href", "/login");
+    }
+  });
 
   function openMenu() {
     sidebar.classList.add("open");
@@ -37,11 +47,12 @@ document.addEventListener("DOMContentLoaded", () => {
   overlay.addEventListener("click", closeMenu);
 
   document.addEventListener("keydown", event => {
-    if (event.key === "Escape") closeMenu();
+    if (event.key === "Escape") {
+      closeMenu();
+    }
   });
 
   sidebar.querySelectorAll("a").forEach(link => {
     link.addEventListener("click", closeMenu);
   });
 });
-EOF

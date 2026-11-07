@@ -1,0 +1,53 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Minha conta | THEO STORE</title>
+  <link rel="stylesheet" href="cadastro.css">
+  <script src="cadastro.js" defer></script>
+</head>
+<body>
+  <a class="logo" href="/">THEO <span>STORE.</span></a>
+
+  <main class="container">
+    <div class="tabs">
+      <button id="tab-register" class="active">Criar conta</button>
+      <button id="tab-login">Entrar</button>
+    </div>
+
+    <form id="register-form">
+      <h1>Crie sua conta</h1>
+      <p>Entre para conhecer as lojas e criar a sua.</p>
+
+      <label>Seu nome</label>
+      <input name="name" type="text" maxlength="50" placeholder="Como quer ser chamado?" required>
+
+      <label>E-mail</label>
+      <input name="email" type="email" maxlength="150" placeholder="seuemail@exemplo.com" required>
+
+      <label>Senha</label>
+      <input name="password" type="password" minlength="8" placeholder="Mínimo de 8 caracteres" required>
+
+      <button class="submit" type="submit">CRIAR CONTA</button>
+    </form>
+
+    <form id="login-form" hidden>
+      <h1>Bem-vindo de volta!</h1>
+      <p>Entre na sua conta THEO STORE.</p>
+
+      <label>E-mail</label>
+      <input name="email" type="email" placeholder="seuemail@exemplo.com" required>
+
+      <label>Senha</label>
+      <input name="password" type="password" placeholder="Sua senha" required>
+
+      <button class="submit" type="submit">ENTRAR</button>
+    </form>
+
+    <p id="message" role="status"></p>
+    <a class="back" href="/">← Voltar para a loja</a>
+  </main>
+<script src="/em-desenvolvimento.js"></script>
+</body>
+</html>

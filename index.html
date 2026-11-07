@@ -6,26 +6,123 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <meta name="description" content="THEO STORE - Os melhores achadinhos e ofertas do Mercado Livre.">
   <title>THEO STORE | Achadinhos e Ofertas</title>
+
   <link rel="stylesheet" href="style.css">
+  <link rel="stylesheet" href="admin-menu.css">
+
   <script src="script.js" defer></script>
+  <script src="/conta.js" defer></script>
+  <script src="admin-menu.js" defer></script>
 </head>
+
 <body>
 
   <header class="header">
     <div class="container navbar">
+
       <a href="#" class="logo">THEO <span>STORE.</span></a>
 
       <nav class="navigation">
         <a href="#inicio">Início</a>
         <a href="#categorias">Categorias</a>
-        <a href="#ofertas">Achadinhos</a>
+        <a href="/lojas.html">Lojas</a>
       </nav>
 
-      <a href="#ofertas" class="header-button">Ver ofertas ↗</a>
+      <div style="display:flex; align-items:center; gap:12px;">
+        <a href="/cadastro.html" class="header-button" id="my-store-button">Minha loja</a>
+
+        <button
+          type="button"
+          id="admin-menu-button"
+          class="admin-menu-button"
+          aria-label="Abrir menu administrativo"
+          aria-controls="admin-sidebar"
+          aria-expanded="false"
+          hidden
+        >
+          <span></span>
+          <span></span>
+          <span></span>
+        </button>
+      </div>
+
     </div>
   </header>
 
+  <!-- Fundo escuro do menu -->
+  <div
+    id="admin-menu-overlay"
+    class="admin-menu-overlay"
+  ></div>
+
+  <!-- Menu lateral administrativo -->
+  <aside
+    id="admin-sidebar"
+    class="admin-sidebar"
+    aria-hidden="true"
+  >
+
+    <div class="admin-sidebar-header">
+      <div class="admin-sidebar-title">
+        THEO <span>STORE.</span>
+        <div style="font-size:11px;color:#999;margin-top:5px;">
+          CENTRAL ADMINISTRATIVA
+        </div>
+      </div>
+
+      <button
+        type="button"
+        id="admin-menu-close"
+        class="admin-menu-close"
+        aria-label="Fechar menu"
+      >
+        ×
+      </button>
+    </div>
+
+    <p class="admin-menu-label">GERENCIAMENTO DA LOJA</p>
+
+    <nav class="admin-menu-links">
+
+      <a href="/central">
+        <span class="admin-menu-icon">▦</span>
+        Painel administrativo
+      </a>
+
+      <a href="/central#products">
+        <span class="admin-menu-icon">▣</span>
+        Gerenciar produtos
+      </a>
+
+      <a href="/central#categories">
+        <span class="admin-menu-icon">▤</span>
+        Categorias
+      </a>
+
+      <a href="/central#new">
+        <span class="admin-menu-icon">＋</span>
+        Adicionar achadinho
+      </a>
+
+    </nav>
+
+    <div class="admin-sidebar-footer">
+      <p class="admin-menu-label">CONTA</p>
+
+      <button
+        type="button"
+        id="admin-logout"
+        class="admin-logout"
+      >
+        <span class="admin-menu-icon">↪</span>
+        Sair da conta
+      </button>
+    </div>
+
+  </aside>
+
   <main>
+
     <section class="hero" id="inicio">
       <div class="container hero-content">
 
@@ -51,6 +148,7 @@
           <a href="#ofertas" class="primary-button">
             EXPLORAR ACHADINHOS →
           </a>
+
           <a href="#categorias" class="secondary-button">
             Conhecer categorias
           </a>
@@ -61,10 +159,12 @@
             <strong>100%</strong>
             <span>Mercado Livre</span>
           </div>
+
           <div>
             <strong>THEO</strong>
             <span>Seleção de ofertas</span>
           </div>
+
           <div>
             <strong>24/7</strong>
             <span>Site disponível</span>
@@ -87,10 +187,12 @@
             <span class="eyebrow">ENCONTRE O QUE PROCURA</span>
             <h2>Explore categorias<span>.</span></h2>
           </div>
+
           <p>Os produtos que você procura, reunidos em um só lugar.</p>
         </div>
 
         <div class="category-grid">
+
           <a href="#ofertas" class="category-card">
             <span class="category-icon">🎧</span>
             <strong>Tecnologia</strong>
@@ -126,8 +228,8 @@
             <strong>Outros</strong>
             <small>Mais achadinhos</small>
           </a>
-        </div>
 
+        </div>
       </div>
     </section>
 
@@ -139,6 +241,7 @@
             <span class="eyebrow">OFERTAS SELECIONADAS</span>
             <h2>Últimos achadinhos<span>.</span></h2>
           </div>
+
           <span class="live-label">
             <span class="pulse"></span>
             OFERTAS
@@ -147,6 +250,7 @@
 
         <div class="search-box">
           <span>⌕</span>
+
           <input
             type="search"
             id="product-search"
@@ -157,11 +261,14 @@
 
         <div class="empty-state" id="empty-state">
           <div class="empty-icon">🛍️</div>
+
           <h3>Estamos preparando os achadinhos!</h3>
+
           <p>
             Em breve você encontrará aqui produtos selecionados
             do Mercado Livre.
           </p>
+
           <span>THEO STORE — SEU LUGAR DE ECONOMIZAR</span>
         </div>
 
@@ -170,12 +277,17 @@
 
     <section class="callout">
       <div class="container callout-content">
+
         <div>
           <span class="eyebrow">THEO STORE</span>
           <h2>Seu próximo achadinho está aqui.</h2>
           <p>Descubra oportunidades e aproveite as ofertas.</p>
         </div>
-        <a href="#ofertas" class="primary-button">VER ACHADINHOS →</a>
+
+        <a href="#ofertas" class="primary-button">
+          VER ACHADINHOS →
+        </a>
+
       </div>
     </section>
 
@@ -183,14 +295,22 @@
 
   <footer class="footer">
     <div class="container footer-content">
+
       <a href="#" class="logo">THEO <span>STORE.</span></a>
-      <p>© <span id="current-year"></span> THEO STORE. Todos os direitos reservados.</p>
+
+      <p>
+        © <span id="current-year"></span>
+        THEO STORE. Todos os direitos reservados.
+      </p>
+
       <small>
         THEO STORE é uma plataforma independente de divulgação de ofertas.
         Não é o Mercado Livre.
       </small>
+
     </div>
   </footer>
 
+<script src="/em-desenvolvimento.js"></script>
 </body>
 </html>

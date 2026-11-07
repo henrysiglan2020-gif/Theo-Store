@@ -1,0 +1,14 @@
+.stores-page { min-height: 75vh; padding: 75px 0 100px; }
+.stores-heading { margin-bottom: 35px; }
+.stores-heading h1 { font-size: clamp(35px,6vw,58px); margin: 15px 0; letter-spacing: -2px; }
+.stores-heading h1 span { color: var(--yellow); }
+.stores-heading p { color: var(--muted); line-height: 1.7; }
+.store-search { width: 100%; max-width: 500px; padding: 16px; margin-bottom: 30px; border: 1px solid var(--border); border-radius: 8px; background: var(--surface); color: white; outline: none; }
+.stores-grid { display: grid; grid-template-columns: repeat(auto-fill,minmax(230px,1fr)); gap: 18px; }
+.store-card { display: block; padding: 22px; background: var(--surface); border: 1px solid var(--border); border-radius: 13px; transition: .2s; }
+.store-card:hover { border-color: var(--yellow); transform: translateY(-3px); }
+.store-logo { width: 65px; height: 65px; border-radius: 14px; object-fit: cover; background: #222; margin-bottom: 15px; }
+.store-card h2 { font-size: 18px; margin-bottom: 8px; }
+.store-card p { color: var(--muted); font-size: 13px; line-height: 1.6; }
+.store-card small { display: block; margin-top: 15px; color: var(--yellow); }
+.stores-message { color: var(--muted); grid-column: 1/-1; padding: 30px 0; }

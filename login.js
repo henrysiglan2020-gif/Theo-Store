@@ -1,17 +1,19 @@
+
 const form = document.getElementById("login-form");
 const message = document.getElementById("message");
 
 form.addEventListener("submit", async event => {
   event.preventDefault();
 
-  message.textContent = "Verificando acesso...";
+  message.textContent = "Verificando senha...";
 
   try {
     const response = await fetch("/api/login", {
       method: "POST",
-      headers: { "Content-Type": "application/json" },
+      headers: {
+        "Content-Type": "application/json"
+      },
       body: JSON.stringify({
-        username: document.getElementById("username").value,
         password: document.getElementById("password").value
       })
     });
@@ -19,7 +21,7 @@ form.addEventListener("submit", async event => {
     const result = await response.json();
 
     if (!response.ok) {
-      message.textContent = result.error || "Não foi possível entrar.";
+      message.textContent = result.error || "Senha incorreta.";
       return;
     }
 

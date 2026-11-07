@@ -1,0 +1,48 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Lojas | THEO STORE</title>
+  <link rel="stylesheet" href="/style.css">
+  <link rel="stylesheet" href="/lojas.css">
+  <script src="/lojas.js" defer></script>
+</head>
+<body>
+  <header class="header">
+    <div class="container navbar">
+      <a href="/" class="logo">THEO <span>STORE.</span></a>
+      <nav class="navigation">
+        <a href="/">Início</a>
+        <a href="/lojas.html">Lojas</a>
+      </nav>
+      <a href="/cadastro.html" class="header-button">Minha loja</a>
+    </div>
+  </header>
+
+  <main class="stores-page">
+    <div class="container">
+      <div class="stores-heading">
+        <span class="eyebrow">VITRINE DE LOJISTAS</span>
+        <h1>Explore outras <span>lojas.</span></h1>
+        <p>Descubra achadinhos selecionados por diferentes vendedores.</p>
+      </div>
+
+      <input id="store-search" class="store-search"
+        type="search" placeholder="Pesquisar lojas...">
+
+      <div id="stores-list" class="stores-grid">
+        <p class="stores-message">Carregando lojas...</p>
+      </div>
+    </div>
+  </main>
+
+  <footer class="footer">
+    <div class="container footer-content">
+      <a href="/" class="logo">THEO <span>STORE.</span></a>
+      <p>© <span id="year"></span> THEO STORE.</p>
+    </div>
+  </footer>
+<script src="/em-desenvolvimento.js"></script>
+</body>
+</html>
