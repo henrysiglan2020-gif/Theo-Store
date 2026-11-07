@@ -1,0 +1,179 @@
+
+* { box-sizing: border-box; }
+body {
+  margin: 0;
+  background: #101010;
+  color: white;
+  font-family: Arial, sans-serif;
+}
+.sidebar {
+  position: fixed;
+  inset: 0 auto 0 0;
+  width: 245px;
+  background: #171717;
+  padding: 28px 18px;
+  border-right: 1px solid #303030;
+}
+.sidebar h2 { font-size: 23px; }
+.sidebar h2 span { color: #ffdf00; }
+.sidebar p, header small {
+  color: #999;
+  font-size: 10px;
+  letter-spacing: 1.5px;
+}
+.nav {
+  display: block;
+  width: 100%;
+  margin: 8px 0;
+  padding: 14px;
+  background: transparent;
+  border: 0;
+  color: #ccc;
+  text-align: left;
+  border-radius: 7px;
+  cursor: pointer;
+}
+.nav:hover, .nav.active {
+  color: #ffdf00;
+  background: #302b00;
+}
+.sidebar a {
+  display: block;
+  margin-top: 45px;
+  color: #aaa;
+  text-decoration: none;
+}
+main {
+  margin-left: 245px;
+  padding: 30px;
+  max-width: 1500px;
+}
+header, .heading {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 15px;
+  margin-bottom: 30px;
+}
+header h1 { margin: 7px 0; }
+.admin { color: #ffdf00; font-size: 12px; }
+.welcome {
+  background: linear-gradient(110deg,#302900,#191919);
+  border: 1px solid #554900;
+  padding: 28px;
+  border-radius: 12px;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 15px;
+}
+.welcome h2 { font-size: 27px; }
+.welcome p, .heading p { color: #999; }
+.welcome small { color: #ffdf00; }
+.stats {
+  display: grid;
+  grid-template-columns: repeat(4,1fr);
+  gap: 15px;
+  margin: 22px 0;
+}
+.stat, .panel {
+  background: #191919;
+  border: 1px solid #303030;
+  padding: 20px;
+  border-radius: 10px;
+}
+.stat { color: #aaa; font-size: 13px; }
+.stat strong {
+  display: block;
+  font-size: 27px;
+  color: white;
+  margin-top: 12px;
+}
+button, input, textarea, select { font: inherit; }
+button { cursor: pointer; }
+.primary, .secondary {
+  padding: 12px 16px;
+  border-radius: 7px;
+  font-weight: bold;
+}
+.primary { background: #ffdf00; color: #111; border: 0; }
+.secondary { background: #303030; color: white; border: 1px solid #444; }
+input, textarea, select {
+  width: 100%;
+  padding: 12px;
+  background: #111;
+  color: white;
+  border: 1px solid #383838;
+  border-radius: 7px;
+}
+input:focus, textarea:focus, select:focus { outline: 1px solid #ffdf00; }
+label {
+  display: block;
+  margin: 18px 0 8px;
+  font-size: 13px;
+  color: #ccc;
+}
+.link-row, .grid, .actions, .ai-box {
+  display: flex;
+  gap: 12px;
+}
+.link-row input { flex: 1; }
+.grid > div { flex: 1; }
+.hint { color: #999; font-size: 12px; }
+.ai-box {
+  margin-top: 20px;
+  padding: 16px;
+  background: #292400;
+  border: 1px solid #514700;
+  border-radius: 8px;
+  justify-content: space-between;
+  align-items: center;
+}
+.ai-box strong { color: #ffdf00; }
+.ai-box p { color: #aaa; font-size: 12px; }
+.actions { justify-content: flex-end; margin-top: 25px; flex-wrap: wrap; }
+.product-row, .category-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  padding: 14px 0;
+  border-bottom: 1px solid #333;
+}
+.product-row img {
+  width: 55px;
+  height: 55px;
+  object-fit: contain;
+  background: white;
+  border-radius: 7px;
+}
+.product-info { flex: 1; overflow-wrap: anywhere; }
+.product-info small { display: block; color: #999; margin-top: 6px; }
+.product-actions { display: flex; gap: 6px; flex-wrap: wrap; }
+.product-actions button, .delete-button {
+  padding: 8px;
+  border: 1px solid #444;
+  background: #303030;
+  color: white;
+  border-radius: 5px;
+}
+.delete-button { color: #ff7777; }
+.empty { padding: 20px; color: #999; text-align: center; }
+.hidden { display: none !important; }
+#category-form { display: flex; gap: 10px; }
+#category-form input { flex: 1; }
+@media(max-width:850px) {
+  .sidebar { width: 190px; }
+  main { margin-left: 190px; padding: 20px; }
+  .stats { grid-template-columns: repeat(2,1fr); }
+}
+@media(max-width:600px) {
+  .sidebar { position: static; width: 100%; }
+  .sidebar a { margin-top: 15px; }
+  main { margin: 0; padding: 15px; }
+  .stats { grid-template-columns: repeat(2,1fr); }
+  .welcome { flex-direction: column; align-items: flex-start; }
+  .grid, .link-row { flex-direction: column; }
+  .product-row { flex-wrap: wrap; }
+  .ai-box { flex-direction: column; align-items: flex-start; }
+}

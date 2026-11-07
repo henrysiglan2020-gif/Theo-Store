@@ -1,0 +1,127 @@
+
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>THEO STORE | Central</title>
+  <link rel="stylesheet" href="central.css">
+  <script src="central.js" defer></script>
+</head>
+<body>
+  <aside class="sidebar">
+    <h2>THEO <span>STORE.</span></h2>
+    <p>PAINEL ADMINISTRATIVO</p>
+    <button class="nav active" data-page="dashboard">▦ Visão geral</button>
+    <button class="nav" data-page="products">▣ Produtos</button>
+    <button class="nav" data-page="categories">▤ Categorias</button>
+    <button class="nav" data-page="new">＋ Novo achadinho</button>
+    <a href="index.html">← Voltar ao site</a>
+  </aside>
+
+  <main>
+    <header>
+      <div>
+        <small>THEO STORE / ADMINISTRAÇÃO</small>
+        <h1 id="page-title">Visão geral</h1>
+      </div>
+      <span class="admin">● ADMIN</span>
+    </header>
+
+    <section id="dashboard" class="page">
+      <div class="welcome">
+        <div>
+          <small>SEJA BEM-VINDO</small>
+          <h2>Gerencie seus achadinhos.</h2>
+          <p>Controle os produtos e as categorias da loja.</p>
+        </div>
+        <button class="primary" onclick="showPage('new')">＋ Adicionar produto</button>
+      </div>
+
+      <div class="stats">
+        <div class="stat">Produtos cadastrados<strong id="total-products">0</strong></div>
+        <div class="stat">Publicados<strong id="published-products">0</strong></div>
+        <div class="stat">Rascunhos<strong id="draft-products">0</strong></div>
+        <div class="stat">Categorias<strong id="total-categories">0</strong></div>
+      </div>
+
+      <div class="panel">
+        <h3>Produtos recentes</h3>
+        <div id="recent-products"></div>
+      </div>
+    </section>
+
+    <section id="products" class="page hidden">
+      <div class="heading">
+        <div><h2>Produtos</h2><p>Gerencie seus achadinhos.</p></div>
+        <button class="primary" onclick="showPage('new')">＋ Novo produto</button>
+      </div>
+      <input id="product-search" placeholder="Pesquisar produto..." oninput="renderProducts()">
+      <div class="panel" id="all-products"></div>
+    </section>
+
+    <section id="categories" class="page hidden">
+      <h2>Categorias</h2>
+      <p>Crie e organize as categorias da loja.</p>
+      <div class="panel">
+        <form id="category-form">
+          <input id="category-name" placeholder="Nome da categoria" required>
+          <button class="primary">Criar categoria</button>
+        </form>
+        <div id="category-list"></div>
+      </div>
+    </section>
+
+    <section id="new" class="page hidden">
+      <h2 id="form-title">Novo achadinho</h2>
+      <p>Adicione um produto à THEO STORE.</p>
+      <div class="panel">
+        <form id="product-form">
+          <input type="hidden" id="edit-id">
+
+          <label>Link do Mercado Livre</label>
+          <div class="link-row">
+            <input id="product-url" type="url" placeholder="Cole o link do produto" required>
+            <button type="button" class="secondary" onclick="lookupProduct()">Buscar produto</button>
+          </div>
+          <p id="lookup-status" class="hint">Cole o link para começar.</p>
+
+          <label>Nome do produto</label>
+          <input id="product-name" required placeholder="Nome do produto">
+
+          <div class="grid">
+            <div>
+              <label>Preço atual</label>
+              <input id="product-price" type="number" min="0" step="0.01">
+            </div>
+            <div>
+              <label>Preço anterior</label>
+              <input id="product-old-price" type="number" min="0" step="0.01">
+            </div>
+          </div>
+
+          <label>Categoria</label>
+          <select id="product-category" required></select>
+
+          <label>Imagem do produto (URL)</label>
+          <input id="product-image" type="url" placeholder="https://...">
+
+          <label>Descrição</label>
+          <textarea id="product-description" rows="5" placeholder="Descrição do achadinho..."></textarea>
+
+          <div class="ai-box">
+            <div><strong>✦ Inteligência artificial</strong><p>Prepare uma descrição atrativa para o produto.</p></div>
+            <button type="button" class="secondary" onclick="generateDescription()">Gerar descrição</button>
+          </div>
+
+          <div class="actions">
+            <button type="button" class="secondary" onclick="resetForm()">Cancelar</button>
+            <button type="button" class="secondary" onclick="saveProduct('Rascunho')">Salvar rascunho</button>
+            <button type="submit" class="primary">Publicar produto</button>
+          </div>
+        </form>
+      </div>
+    </section>
+  </main>
+</body>
+</html>
